@@ -30,7 +30,10 @@ type Zone struct {
 	ReloadInterval time.Duration
 	reloadShutdown chan bool
 
-	Upstream *upstream.Upstream // Upstream for looking up external names during the resolution process.
+	Upstream   *upstream.Upstream // Upstream for looking up external names during the resolution process.
+	TsigAlg    string
+	TsigKey    string
+	TsigSecret string
 }
 
 // Apex contains the apex records of a zone: SOA, NS and their potential signatures.
@@ -59,6 +62,9 @@ func (z *Zone) Copy() *Zone {
 	z1.Expired = z.Expired
 
 	z1.Apex = z.Apex
+	z1.TsigAlg = z.TsigAlg
+	z1.TsigKey = z.TsigKey
+	z1.TsigSecret = z.TsigSecret
 	return z1
 }
 
@@ -67,7 +73,9 @@ func (z *Zone) CopyWithoutApex() *Zone {
 	z1 := NewZone(z.origin, z.file)
 	z1.TransferFrom = z.TransferFrom
 	z1.Expired = z.Expired
-
+	z1.TsigAlg = z.TsigAlg
+	z1.TsigKey = z.TsigKey
+	z1.TsigSecret = z.TsigSecret
 	return z1
 }
 

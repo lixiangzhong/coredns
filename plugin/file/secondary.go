@@ -12,8 +12,6 @@ func (z *Zone) TransferIn() error {
 	if len(z.TransferFrom) == 0 {
 		return nil
 	}
-	m := new(dns.Msg)
-	m.SetAxfr(z.origin)
 
 	z1 := z.CopyWithoutApex()
 	var (
@@ -24,6 +22,12 @@ func (z *Zone) TransferIn() error {
 Transfer:
 	for _, tr = range z.TransferFrom {
 		t := new(dns.Transfer)
+		m := new(dns.Msg)
+		m.SetAxfr(z.origin)
+		if z.TsigAlg != "" {
+			t.TsigSecret = map[string]string{z.TsigKey: z.TsigSecret}
+			m.SetTsig(z.TsigKey, z.TsigAlg, 300, time.Now().Unix())
+		}
 		c, err := t.In(m, tr)
 		if err != nil {
 			log.Errorf("Failed to setup transfer `%s' with `%q': %v", z.origin, tr, err)
